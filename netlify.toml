@@ -26,14 +26,8 @@
   to = "/.netlify/functions/:splat"
   status = 200
 
-# Handle SPA routing
+# Handle SPA routing - REMOVED THE PROBLEMATIC CONDITIONS
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
-  conditions = {Role = ["admin"]}
-
-[dev]
-  functions = "netlify/functions"
-  publish = "."
-  port = 8888
