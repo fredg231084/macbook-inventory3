@@ -1,0 +1,35 @@
+{
+  "name": "macbook-inventory-netlify",
+  "version": "1.0.0",
+  "description": "MacBook inventory sync with Shopify - Netlify deployment",
+  "main": "index.html",
+  "scripts": {
+    "dev": "netlify dev",
+    "build": "echo 'No build step required'",
+    "deploy": "netlify deploy --prod"
+  },
+  "dependencies": {
+    "node-fetch": "^2.7.0",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "netlify-cli": "^15.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "shopify",
+    "inventory",
+    "automation",
+    "macbook",
+    "netlify",
+    "serverless"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "your-repo-url"
+  }
+}
