@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MacBook Inventory Sync - Shopify Automation</title>
+    <title>MacBookDepot.com - Inventory Sync | Shopify Automation</title>
     <style>
         * {
             margin: 0;
@@ -19,7 +19,7 @@
         }
 
         .container {
-            max-width: 1000px;
+            max-width: 1200px;
             margin: 0 auto;
             background: white;
             border-radius: 20px;
@@ -34,7 +34,7 @@
 
         .header h1 {
             color: #333;
-            font-size: 2.5rem;
+            font-size: 2.8rem;
             margin-bottom: 10px;
             background: linear-gradient(45deg, #667eea, #764ba2);
             -webkit-background-clip: text;
@@ -44,7 +44,14 @@
 
         .header p {
             color: #666;
-            font-size: 1.1rem;
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+        }
+
+        .header .subtitle {
+            color: #888;
+            font-size: 1rem;
+            font-style: italic;
         }
 
         .section {
@@ -58,7 +65,10 @@
         .section h2 {
             color: #333;
             margin-bottom: 20px;
-            font-size: 1.4rem;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
         .form-group {
@@ -210,7 +220,7 @@
         }
 
         .preview {
-            max-height: 300px;
+            max-height: 400px;
             overflow-y: auto;
             background: #f8f9fa;
             border-radius: 10px;
@@ -233,9 +243,9 @@
         }
 
         .progress-bar {
-            height: 4px;
+            height: 6px;
             background: #e0e0e0;
-            border-radius: 2px;
+            border-radius: 3px;
             margin: 20px 0;
             overflow: hidden;
         }
@@ -255,15 +265,124 @@
             border-radius: 10px;
             margin: 20px 0;
         }
+
+        .category-breakdown {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .category-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .category-count {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .category-name {
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .success-details {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 15px;
+        }
+
+        .success-details ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .success-details li {
+            padding: 5px 0;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .feature-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .feature-card h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .feature-card ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .feature-card li {
+            padding: 5px 0;
+            color: #666;
+        }
+
+        .feature-card li::before {
+            content: "✅ ";
+            margin-right: 8px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>MacBook Inventory Sync</h1>
+            <h1>MacBookDepot.com</h1>
             <p>Automated Excel to Shopify Inventory Management</p>
+            <p class="subtitle">Professional Apple Product Sync with SEO Optimization</p>
             <div class="progress-bar">
                 <div class="progress-fill" id="progressFill"></div>
+            </div>
+        </div>
+
+        <!-- Features Overview -->
+        <div class="features-grid">
+            <div class="feature-card">
+                <h3>🎯 Smart Product Grouping</h3>
+                <ul>
+                    <li>Eliminates duplicate listings</li>
+                    <li>Groups by configuration</li>
+                    <li>Condition-based variants</li>
+                    <li>Inventory consolidation</li>
+                </ul>
+            </div>
+            <div class="feature-card">
+                <h3>🔍 SEO Optimization</h3>
+                <ul>
+                    <li>Search-friendly titles</li>
+                    <li>Optimized URLs</li>
+                    <li>Meta descriptions</li>
+                    <li>Smart collections</li>
+                </ul>
+            </div>
+            <div class="feature-card">
+                <h3>🏷️ Auto Collections</h3>
+                <ul>
+                    <li>Product type grouping</li>
+                    <li>Processor categories</li>
+                    <li>Year-based collections</li>
+                    <li>Size classifications</li>
+                </ul>
             </div>
         </div>
 
@@ -271,42 +390,48 @@
         <div class="section step active" id="step1">
             <h2>📁 Step 1: Upload Excel File</h2>
             <div class="note">
-                <strong>Excel Format:</strong> Make sure your file has columns like: Model, Processor, Storage, Memory, Color, Condition, Sub-Category (must contain "laptop")
+                <strong>📋 Supported Products:</strong> MacBooks, iPads, iPhones, iMacs, Mac Studio, Mac Mini, AirPods, and Apple Accessories<br>
+                <strong>📊 Required Columns:</strong> Brand, Model, Sub-Category, Processor, Storage, Memory, Color, Condition, Serial Number
             </div>
             <div class="file-upload" id="fileUpload">
                 <input type="file" id="excelFile" accept=".xlsx,.xls" hidden>
                 <div id="uploadText">
-                    <p style="font-size: 1.2rem; margin-bottom: 10px;">📊 Drop your Excel file here or click to browse</p>
+                    <p style="font-size: 1.3rem; margin-bottom: 10px;">📊 Drop your supplier's Excel file here or click to browse</p>
                     <p style="color: #666;">Accepted formats: .xlsx, .xls (max 10MB)</p>
                 </div>
             </div>
             <div class="file-info" id="fileInfo"></div>
-            <button class="btn" id="processFile" disabled>Process Excel File</button>
+            <button class="btn" id="processFile" disabled>🔄 Process Excel File</button>
         </div>
 
         <!-- Step 2: Review Data -->
         <div class="section step" id="step2">
             <h2>📋 Step 2: Review Processed Data</h2>
             <div class="stats" id="dataStats"></div>
+            <div class="category-breakdown" id="categoryBreakdown"></div>
             <div class="preview" id="dataPreview"></div>
-            <button class="btn" id="continueToSync">Continue to Shopify Sync</button>
+            <button class="btn" id="continueToSync">➡️ Continue to Shopify Sync</button>
         </div>
 
         <!-- Step 3: Shopify Configuration -->
         <div class="section step" id="step3">
             <h2>🛍️ Step 3: Shopify Configuration</h2>
             <div class="note">
-                <strong>Need API Token?</strong> Go to Shopify Admin → Apps → App and sales channel settings → Develop apps → Create app → Set permissions (write_products, read_products, write_inventory) → Install → Copy token
+                <strong>🔑 Need API Token?</strong><br>
+                1. Go to Shopify Admin → Apps → App and sales channel settings<br>
+                2. Develop apps → Create app → Configure Admin API scopes<br>
+                3. Enable: write_products, read_products, write_inventory, read_inventory<br>
+                4. Install app → Copy Admin API access token
             </div>
             <div class="form-group">
-                <label for="storeUrl">Store URL (without https://)</label>
-                <input type="text" id="storeUrl" placeholder="your-store.myshopify.com" value="470aec-5.myshopify.com">
+                <label for="storeUrl">🏪 Store URL (without https://)</label>
+                <input type="text" id="storeUrl" placeholder="your-store.myshopify.com" value="">
             </div>
             <div class="form-group">
-                <label for="apiToken">Private App API Token</label>
-                <input type="password" id="apiToken" placeholder="shppa_...">
+                <label for="apiToken">🔐 Admin API Access Token</label>
+                <input type="password" id="apiToken" placeholder="shpat_...">
             </div>
-            <button class="btn" id="syncToShopify">🚀 Sync to Shopify</button>
+            <button class="btn" id="syncToShopify">🚀 Start Shopify Sync</button>
         </div>
 
         <!-- Results -->
@@ -320,7 +445,7 @@
     </div>
 
     <script>
-        console.log('MacBook Inventory Sync - Initializing...');
+        console.log('MacBookDepot.com Inventory Sync - Initializing...');
         
         let processedData = null;
         let currentStep = 1;
@@ -331,6 +456,7 @@
         const fileInfo = document.getElementById('fileInfo');
         const processFileBtn = document.getElementById('processFile');
         const dataStats = document.getElementById('dataStats');
+        const categoryBreakdown = document.getElementById('categoryBreakdown');
         const dataPreview = document.getElementById('dataPreview');
         const continueBtn = document.getElementById('continueToSync');
         const syncBtn = document.getElementById('syncToShopify');
@@ -377,13 +503,13 @@
             if (file) {
                 // Validate file type
                 if (!file.name.match(/\.(xlsx|xls)$/)) {
-                    showResults('Please select a valid Excel file (.xlsx or .xls)', 'error');
+                    showResults('❌ Please select a valid Excel file (.xlsx or .xls)', 'error');
                     return;
                 }
 
                 // Validate file size (10MB limit)
                 if (file.size > 10 * 1024 * 1024) {
-                    showResults('File size must be less than 10MB', 'error');
+                    showResults('❌ File size must be less than 10MB', 'error');
                     return;
                 }
 
@@ -403,18 +529,18 @@
         async function processExcelFile() {
             const file = fileInput.files[0];
             if (!file) {
-                showResults('Please select a file first', 'error');
+                showResults('❌ Please select a file first', 'error');
                 return;
             }
 
-            showLoading('Processing Excel file...');
+            showLoading('🔄 Processing Excel file and analyzing products...');
             console.log('Processing file:', file.name);
             
             try {
                 // Convert file to base64
                 const fileBase64 = await fileToBase64(file);
                 
-                console.log('Sending request to process-excel function...');
+                console.log('Sending request to enhanced process-excel function...');
                 const response = await fetch('/.netlify/functions/process-excel', {
                     method: 'POST',
                     headers: {
@@ -431,7 +557,7 @@
                     processedData = data;
                     displayProcessedData(data);
                     nextStep();
-                    showResults('✅ File processed successfully!', 'success');
+                    showResults('✅ File processed successfully! Products analyzed and optimized.', 'success');
                 } else {
                     throw new Error(data.error || 'Processing failed');
                 }
@@ -458,45 +584,89 @@
         }
 
         function displayProcessedData(data) {
-            console.log('Displaying processed data:', data);
+            console.log('Displaying enhanced processed data:', data);
             
-            // Calculate total variants
+            // Calculate total variants and collections
             const totalVariants = Object.values(data.productGroups).reduce((sum, group) => {
                 return sum + Object.keys(group.variants || {}).length;
             }, 0);
 
-            // Display statistics
+            const totalCollections = new Set();
+            Object.values(data.productGroups).forEach(group => {
+                if (group.collections) {
+                    group.collections.forEach(collection => totalCollections.add(collection));
+                }
+            });
+
+            // Display main statistics
             dataStats.innerHTML = `
                 <div class="stat-card">
                     <div class="stat-number">${data.totalItems || 0}</div>
-                    <div class="stat-label">Total Items</div>
+                    <div class="stat-label">Total Items Found</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-number">${data.groupCount || 0}</div>
-                    <div class="stat-label">Product Groups</div>
+                    <div class="stat-label">Unique Products</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-number">${totalVariants}</div>
-                    <div class="stat-label">Total Variants</div>
+                    <div class="stat-label">Product Variants</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${totalCollections.size}</div>
+                    <div class="stat-label">Collections</div>
                 </div>
             `;
 
-            // Display preview of product groups
-            let previewHtml = '🔍 Product Groups Preview:\n\n';
+            // Display category breakdown
+            if (data.categories) {
+                categoryBreakdown.innerHTML = Object.entries(data.categories)
+                    .map(([category, count]) => `
+                        <div class="category-item">
+                            <div class="category-count">${count}</div>
+                            <div class="category-name">${category}</div>
+                        </div>
+                    `).join('');
+            }
+
+            // Display enhanced preview of product groups
+            let previewHtml = '🎯 Enhanced Product Groups Preview:\n\n';
             const productEntries = Object.entries(data.productGroups || {});
             
             if (productEntries.length === 0) {
-                previewHtml += 'No product groups found. Check your Excel file format.';
+                previewHtml += '❌ No product groups found. Check your Excel file format.';
             } else {
-                productEntries.slice(0, 5).forEach(([key, group]) => {
+                previewHtml += `📊 Successfully created ${productEntries.length} optimized product listings:\n\n`;
+                
+                productEntries.slice(0, 8).forEach(([key, group], index) => {
                     const variantCount = Object.keys(group.variants || {}).length;
-                    previewHtml += `📱 ${group.model} ${group.processor} ${group.storage} ${group.memory}\n`;
-                    previewHtml += `   └─ ${group.items?.length || 0} items, ${variantCount} variants\n\n`;
+                    const collectionCount = (group.collections || []).length;
+                    
+                    previewHtml += `${index + 1}. 📱 ${group.seoTitle}\n`;
+                    previewHtml += `   🏷️  Type: ${group.productType}\n`;
+                    if (group.processor && group.processor !== 'Unknown') {
+                        previewHtml += `   ⚡ Processor: ${group.processor}\n`;
+                    }
+                    if (group.storage && group.storage !== 'Unknown') {
+                        previewHtml += `   💾 Storage: ${group.storage}\n`;
+                    }
+                    if (group.memory && group.memory !== 'Unknown') {
+                        previewHtml += `   🧠 Memory: ${group.memory}\n`;
+                    }
+                    previewHtml += `   📦 Units: ${group.items?.length || 0} | Variants: ${variantCount} | Collections: ${collectionCount}\n`;
+                    previewHtml += `   💰 Base Price: ${group.basePrice || 'TBD'}\n\n`;
                 });
                 
-                if (productEntries.length > 5) {
-                    previewHtml += `... and ${productEntries.length - 5} more groups\n`;
+                if (productEntries.length > 8) {
+                    previewHtml += `... and ${productEntries.length - 8} more optimized products\n\n`;
                 }
+
+                previewHtml += '🎉 Benefits of this optimization:\n';
+                previewHtml += '✅ SEO-friendly product titles\n';
+                previewHtml += '✅ Organized collections for easy browsing\n';
+                previewHtml += '✅ Condition-based pricing variants\n';
+                previewHtml += '✅ No duplicate listings\n';
+                previewHtml += '✅ Professional product descriptions\n';
             }
 
             dataPreview.textContent = previewHtml;
@@ -533,22 +703,32 @@
 
             // Validation
             if (!storeUrl || !apiToken) {
-                showResults('Please fill in all Shopify configuration fields', 'error');
+                showResults('❌ Please fill in all Shopify configuration fields', 'error');
+                return;
+            }
+
+            if (!storeUrl.includes('.myshopify.com')) {
+                showResults('❌ Store URL must be in format: your-store.myshopify.com', 'error');
+                return;
+            }
+
+            if (!apiToken.startsWith('shpat_')) {
+                showResults('❌ API token should start with "shpat_". Make sure you\'re using an Admin API access token.', 'error');
                 return;
             }
 
             if (!processedData) {
-                showResults('No processed data available. Please process an Excel file first.', 'error');
+                showResults('❌ No processed data available. Please process an Excel file first.', 'error');
                 return;
             }
 
             if (Object.keys(processedData.productGroups || {}).length === 0) {
-                showResults('No product groups found in processed data. Check your Excel file.', 'error');
+                showResults('❌ No product groups found in processed data. Check your Excel file.', 'error');
                 return;
             }
 
-            showLoading('Syncing to Shopify...');
-            console.log('Starting Shopify sync...');
+            showLoading('🚀 Syncing to Shopify... This may take a few minutes for large inventories.');
+            console.log('Starting enhanced Shopify sync...');
 
             try {
                 const requestData = {
@@ -557,7 +737,10 @@
                     productGroups: processedData.productGroups
                 };
 
-                console.log('Sending sync request:', { storeUrl, productGroupCount: Object.keys(requestData.productGroups).length });
+                console.log('Sending enhanced sync request:', { 
+                    storeUrl, 
+                    productGroupCount: Object.keys(requestData.productGroups).length 
+                });
 
                 const response = await fetch('/.netlify/functions/sync-shopify', {
                     method: 'POST',
@@ -573,7 +756,7 @@
 
                 if (response.ok) {
                     displaySyncResults(result);
-                    showResults('🎉 Sync completed successfully!', 'success');
+                    showResults('🎉 Sync completed successfully! Your products are now live on Shopify.', 'success');
                 } else {
                     throw new Error(result.error || 'Sync failed');
                 }
@@ -586,10 +769,10 @@
         }
 
         function displaySyncResults(result) {
-            console.log('Displaying sync results:', result);
+            console.log('Displaying enhanced sync results:', result);
             
             let html = `
-                <h3>🎉 Sync Results</h3>
+                <h3>🎉 Shopify Sync Complete!</h3>
                 <div class="stats">
                     <div class="stat-card">
                         <div class="stat-number">${result.created || 0}</div>
@@ -600,6 +783,10 @@
                         <div class="stat-label">Products Updated</div>
                     </div>
                     <div class="stat-card">
+                        <div class="stat-number">${result.collectionsCreated || 0}</div>
+                        <div class="stat-label">Collections Managed</div>
+                    </div>
+                    <div class="stat-card">
                         <div class="stat-number">${result.errors || 0}</div>
                         <div class="stat-label">Errors</div>
                     </div>
@@ -607,23 +794,46 @@
             `;
 
             if (result.details && result.details.length > 0) {
-                html += '<h4>📋 Details:</h4><ul>';
+                html += '<h4>📋 Sync Details:</h4>';
+                html += '<div class="success-details"><ul>';
                 result.details.forEach(detail => {
-                    const isError = detail.includes('Error');
-                    html += `<li style="color: ${isError ? '#721c24' : '#155724'}; margin: 5px 0;">${detail}</li>`;
+                    const isError = detail.includes('❌');
+                    const isCreated = detail.includes('🆕');
+                    const isUpdated = detail.includes('✅');
+                    
+                    let color = '#666';
+                    if (isError) color = '#721c24';
+                    else if (isCreated) color = '#155724';
+                    else if (isUpdated) color = '#0c5460';
+                    
+                    html += `<li style="color: ${color}; margin: 5px 0;">${detail}</li>`;
                 });
-                html += '</ul>';
+                html += '</ul></div>';
             }
 
             // Add helpful next steps
             html += `
                 <div class="note" style="margin-top: 20px;">
-                    <strong>✅ Next Steps:</strong><br>
-                    1. Check your Shopify admin to see the new/updated products<br>
-                    2. Review product variants and pricing<br>
-                    3. Set up any additional SEO or marketing details
+                    <strong>🎯 What's Next?</strong><br>
+                    1. 🛍️ <strong>Check Your Store:</strong> Visit your Shopify admin to see the new products<br>
+                    2. 🏷️ <strong>Review Collections:</strong> Products are automatically organized into collections<br>
+                    3. 📸 <strong>Add Images:</strong> Upload product photos to complete your listings<br>
+                    4. 💰 <strong>Adjust Pricing:</strong> Fine-tune prices based on market conditions<br>
+                    5. 🔄 <strong>Regular Updates:</strong> Re-run this process every 2-3 days with new supplier files
                 </div>
             `;
+
+            // Add store link if successful
+            if ((result.created || 0) + (result.updated || 0) > 0) {
+                const storeUrl = storeUrlInput.value.trim();
+                html += `
+                    <div style="text-align: center; margin-top: 20px;">
+                        <a href="https://${storeUrl}/admin/products" target="_blank" class="btn">
+                            🛍️ View Products in Shopify Admin
+                        </a>
+                    </div>
+                `;
+            }
 
             resultsDiv.innerHTML = html;
         }
@@ -642,11 +852,11 @@
             resultsDiv.innerHTML = `<p>${message}</p>`;
             resultsDiv.style.display = 'block';
             
-            // Auto-hide success messages after 5 seconds
+            // Auto-hide success messages after 7 seconds
             if (type === 'success') {
                 setTimeout(() => {
                     resultsDiv.style.display = 'none';
-                }, 5000);
+                }, 7000);
             }
 
             console.log('Result:', type, message);
@@ -656,7 +866,20 @@
         function initialize() {
             updateStepDisplay();
             updateProgress();
-            console.log('MacBook Inventory Sync - Ready!');
+            console.log('MacBookDepot.com Inventory Sync - Enhanced Version Ready!');
+            
+            // Pre-fill store URL if it's in localStorage
+            const savedStoreUrl = localStorage.getItem('macbookdepot_store_url');
+            if (savedStoreUrl) {
+                storeUrlInput.value = savedStoreUrl;
+            }
+            
+            // Save store URL when it changes
+            storeUrlInput.addEventListener('blur', () => {
+                if (storeUrlInput.value) {
+                    localStorage.setItem('macbookdepot_store_url', storeUrlInput.value);
+                }
+            });
         }
 
         // Run initialization when page loads
