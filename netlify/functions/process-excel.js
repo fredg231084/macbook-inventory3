@@ -31,10 +31,11 @@ exports.handler = async (event, context) => {
       throw new Error('No file data received');
     }
 
-    console.log('Processing Excel file...');
+    console.log('🔄 Processing Excel file...');
     
     // Decode base64 body to buffer
     const buffer = Buffer.from(event.body, 'base64');
+    console.log(`📊 Buffer size: ${buffer.length} bytes`);
     
     // Parse Excel file
     const workbook = XLSX.read(buffer, { type: 'buffer' });
@@ -43,43 +44,139 @@ exports.handler = async (event, context) => {
       throw new Error('No sheets found in Excel file');
     }
     
+    console.log(`📋 Found ${workbook.SheetNames.length} sheets: ${workbook.SheetNames.join(', ')}`);
+    
     const worksheet = workbook.Sheets[workbook.SheetNames[0]];
     const jsonData = XLSX.utils.sheet_to_json(worksheet);
+    
+    console.log(`📈 Total rows extracted: ${jsonData.length}`);
     
     if (!jsonData || jsonData.length === 0) {
       throw new Error('No data found in Excel file');
     }
 
-    console.log(`Found ${jsonData.length} rows in Excel file`);
-
-    // ENHANCED FILTERING - Include ALL Apple products
-    const allProducts = jsonData.filter(item => {
-      const category = (item['Sub-Category'] || '').toLowerCase();
-      const model = (item.Model || '').toLowerCase();
-      const brand = (item.Brand || '').toLowerCase();
-      
-      // Include all Apple products
-      return brand.includes('apple') || 
-             category.includes('laptop') || 
-             category.includes('macbook') || 
-             category.includes('tablet') || 
-             category.includes('phone') || 
-             category.includes('desktop') || 
-             category.includes('accessory') ||
-             model.includes('macbook') ||
-             model.includes('ipad') ||
-             model.includes('iphone') ||
-             model.includes('airpod') ||
-             model.includes('imac');
+    // DEBUG: Log first few rows to see the actual data structure
+    console.log('🔍 DEBUG: First 3 rows of data:');
+    jsonData.slice(0, 3).forEach((row, index) => {
+      console.log(`Row ${index + 1}:`, JSON.stringify(row, null, 2));
     });
 
-    console.log(`Found ${allProducts.length} Apple products after filtering`);
+    // DEBUG: Log all unique column headers
+    const allHeaders = new Set();
+    jsonData.forEach(row => {
+      Object.keys(row).forEach(key => allHeaders.add(key));
+    });
+    console.log('🏷️ DEBUG: All column headers found:', Array.from(allHeaders));
 
+    // DEBUG: Log unique values in key columns
+    const categories = [...new Set(jsonData.map(item => item['Sub-Category']).filter(Boolean))];
+    const brands = [...new Set(jsonData.map(item => item.Brand).filter(Boolean))];
+    const models = [...new Set(jsonData.map(item => item.Model).filter(Boolean))].slice(0, 10); // First 10 models
+    
+    console.log('🏪 DEBUG: Unique Sub-Categories:', categories);
+    console.log('🍎 DEBUG: Unique Brands:', brands);
+    console.log('📱 DEBUG: Sample Models (first 10):', models);
+
+    // ENHANCED FILTERING with debug logging
+    console.log('🔍 Starting filtering process...');
+    
+    const allProducts = jsonData.filter(item => {
+      const category = (item['Sub-Category'] || '').toString().toLowerCase();
+      const model = (item.Model || '').toString().toLowerCase();
+      const brand = (item.Brand || '').toString().toLowerCase();
+      
+      // Log filtering details for first few items
+      const itemIndex = jsonData.indexOf(item);
+      if (itemIndex < 5) {
+        console.log(`DEBUG Item ${itemIndex + 1}:`);
+        console.log(`  Brand: "${brand}"`);
+        console.log(`  Category: "${category}"`);
+        console.log(`  Model: "${model}"`);
+      }
+      
+      // Enhanced filtering conditions
+      const conditions = [
+        brand.includes('apple'),
+        category.includes('laptop'),
+        category.includes('macbook'),
+        category.includes('tablet'),
+        category.includes('phone'),
+        category.includes('desktop'),
+        category.includes('accessory'),
+        category.includes('accessories'), // Added plural
+        model.includes('macbook'),
+        model.includes('ipad'),
+        model.includes('iphone'),
+        model.includes('airpod'),
+        model.includes('imac'),
+        model.includes('magic'),
+        // Add more flexible matching
+        category.includes('mini'),
+        category.includes('air'),
+        category.includes('pro')
+      ];
+      
+      const isMatch = conditions.some(condition => condition);
+      
+      if (itemIndex < 5) {
+        console.log(`  Match found: ${isMatch}`);
+        console.log(`  Matching conditions: ${conditions.map((c, i) => c ? i : null).filter(x => x !== null)}`);
+      }
+      
+      return isMatch;
+    });
+
+    console.log(`✅ Found ${allProducts.length} Apple products after filtering`);
+
+    // If no products found, let's try even broader filtering
     if (allProducts.length === 0) {
-      throw new Error('No Apple products found in Excel file. Check your data format.');
+      console.log('⚠️ No products found with standard filtering, trying broader approach...');
+      
+      // Try to find ANY products that might be Apple products
+      const broadProducts = jsonData.filter(item => {
+        const itemStr = JSON.stringify(item).toLowerCase();
+        return itemStr.includes('apple') || 
+               itemStr.includes('macbook') || 
+               itemStr.includes('ipad') || 
+               itemStr.includes('iphone') ||
+               itemStr.includes('mac ') ||
+               itemStr.includes('airpod') ||
+               itemStr.includes('a24') || // Common Apple model codes
+               itemStr.includes('a23') ||
+               itemStr.includes('m1') ||
+               itemStr.includes('m2') ||
+               itemStr.includes('m3');
+      });
+      
+      console.log(`🔍 Broader search found ${broadProducts.length} potential Apple products`);
+      
+      if (broadProducts.length > 0) {
+        console.log('📝 Sample broad matches:');
+        broadProducts.slice(0, 3).forEach((item, index) => {
+          console.log(`Broad match ${index + 1}:`, JSON.stringify(item, null, 2));
+        });
+      }
+      
+      // Return error with debug info
+      return {
+        statusCode: 200,
+        headers,
+        body: JSON.stringify({
+          error: 'No Apple products found after filtering',
+          debug: {
+            totalRows: jsonData.length,
+            headers: Array.from(allHeaders),
+            categories: categories,
+            brands: brands,
+            sampleModels: models,
+            broadMatches: broadProducts.length,
+            sampleData: jsonData.slice(0, 2) // Include sample data for analysis
+          }
+        })
+      };
     }
 
-    // ENHANCED PRODUCT GROUPING LOGIC
+    // Continue with normal processing if products found
     const productGroups = groupProductsEnhanced(allProducts);
 
     const processedData = {
@@ -90,7 +187,7 @@ exports.handler = async (event, context) => {
       categories: getCategoryStats(allProducts)
     };
 
-    console.log(`Created ${Object.keys(productGroups).length} product groups`);
+    console.log(`🎉 Created ${Object.keys(productGroups).length} product groups`);
 
     return {
       statusCode: 200,
@@ -99,27 +196,28 @@ exports.handler = async (event, context) => {
     };
 
   } catch (error) {
-    console.error('Error processing Excel:', error);
+    console.error('❌ Error processing Excel:', error);
     return {
       statusCode: 500,
       headers,
-      body: JSON.stringify({ error: 'Error processing Excel file: ' + error.message })
+      body: JSON.stringify({ 
+        error: 'Error processing Excel file: ' + error.message,
+        stack: error.stack
+      })
     };
   }
 };
 
-// ENHANCED GROUPING LOGIC - Creates SEO-optimized product groups
+// Keep all the existing functions from the enhanced version
 function groupProductsEnhanced(products) {
   const productGroups = {};
 
   products.forEach(item => {
-    // Determine product category and create enhanced grouping
     const productInfo = analyzeProduct(item);
     const productKey = createEnhancedProductKey(productInfo);
 
     if (!productGroups[productKey]) {
       productGroups[productKey] = {
-        // Enhanced product info
         productType: productInfo.productType,
         model: productInfo.model,
         displaySize: productInfo.displaySize,
@@ -127,24 +225,15 @@ function groupProductsEnhanced(products) {
         storage: productInfo.storage,
         memory: productInfo.memory,
         year: productInfo.year,
-        
-        // SEO-optimized title
         seoTitle: createSEOTitle(productInfo),
-        
-        // Shopify collections
         collections: determineCollections(productInfo),
-        
-        // Product details
         basePrice: estimatePrice(productInfo, item),
         items: [],
         variants: {},
-        
-        // Original data
         originalCategory: item['Sub-Category']
       };
     }
 
-    // Group by condition and color for variants
     const variantKey = `${productInfo.color || 'Default'}_${productInfo.condition || 'A'}`;
     
     if (!productGroups[productKey].variants[variantKey]) {
@@ -166,7 +255,6 @@ function groupProductsEnhanced(products) {
   return productGroups;
 }
 
-// ANALYZE PRODUCT - Extract detailed product information
 function analyzeProduct(item) {
   const model = item.Model || '';
   const processor = item.Processor || '';
@@ -176,39 +264,33 @@ function analyzeProduct(item) {
   const color = item.Color || '';
   const condition = item.Condition || 'A';
 
-  // Determine product type
   let productType = 'Unknown';
   let displaySize = '';
   let year = '';
 
-  // MacBook identification
   if (category.includes('laptop') || category.includes('macbook') || 
       model.toLowerCase().includes('macbook') || processor.toLowerCase().includes('macbook')) {
     
     if (processor.toLowerCase().includes('air') || category.includes('air') || model.toLowerCase().includes('air')) {
       productType = 'MacBook Air';
-      displaySize = '13-inch'; // Most MacBook Airs are 13-inch
+      displaySize = '13-inch';
     } else {
       productType = 'MacBook Pro';
-      // Determine size from processor info
       if (processor.includes('16"') || processor.includes('16-inch')) {
         displaySize = '16-inch';
       } else if (processor.includes('14"') || processor.includes('14-inch')) {
         displaySize = '14-inch';
       } else {
-        displaySize = '13-inch'; // Default for older models
+        displaySize = '13-inch';
       }
     }
     
-    // Extract year from processor
     if (processor.includes('2023')) year = '2023';
     else if (processor.includes('2022')) year = '2022';
     else if (processor.includes('2021')) year = '2021';
     else if (processor.includes('2020')) year = '2020';
     else if (processor.includes('2019')) year = '2019';
   }
-  
-  // iPad identification
   else if (category.includes('tablet') || model.toLowerCase().includes('ipad')) {
     if (model.toLowerCase().includes('pro')) {
       productType = 'iPad Pro';
@@ -225,8 +307,6 @@ function analyzeProduct(item) {
       displaySize = '10.2-inch';
     }
   }
-  
-  // iPhone identification
   else if (category.includes('phone') || model.toLowerCase().includes('iphone')) {
     productType = 'iPhone';
     if (model.toLowerCase().includes('pro max')) {
@@ -239,22 +319,16 @@ function analyzeProduct(item) {
       displaySize = 'mini';
     }
   }
-  
-  // iMac identification
   else if (category.includes('desktop') || model.toLowerCase().includes('imac')) {
     productType = 'iMac';
     if (model.includes('24') || processor.includes('24')) displaySize = '24-inch';
     else if (model.includes('27') || processor.includes('27')) displaySize = '27-inch';
   }
-  
-  // Mac Studio/Mini identification
   else if (model.toLowerCase().includes('mac studio')) {
     productType = 'Mac Studio';
   } else if (model.toLowerCase().includes('mac mini') || category.includes('mini')) {
     productType = 'Mac Mini';
   }
-  
-  // Accessories identification
   else if (category.includes('accessory') || model.toLowerCase().includes('airpod') || 
            model.toLowerCase().includes('magic') || model.toLowerCase().includes('keyboard')) {
     if (model.toLowerCase().includes('airpod')) {
@@ -282,12 +356,10 @@ function analyzeProduct(item) {
   };
 }
 
-// CREATE ENHANCED PRODUCT KEY
 function createEnhancedProductKey(productInfo) {
   return `${productInfo.productType}_${productInfo.displaySize}_${productInfo.processor}_${productInfo.storage}_${productInfo.memory}`.replace(/\s+/g, '_');
 }
 
-// CREATE SEO-OPTIMIZED TITLE
 function createSEOTitle(productInfo) {
   let title = productInfo.productType;
   
@@ -314,14 +386,10 @@ function createSEOTitle(productInfo) {
   return title.replace(/\s+/g, ' ').trim();
 }
 
-// DETERMINE SHOPIFY COLLECTIONS
 function determineCollections(productInfo) {
   const collections = ['All Products'];
-  
-  // Primary collection
   collections.push(productInfo.productType);
   
-  // Secondary collections
   if (productInfo.productType.includes('MacBook')) {
     collections.push('MacBooks');
     if (productInfo.processor.includes('M1') || productInfo.processor.includes('M2') || productInfo.processor.includes('M3')) {
@@ -348,7 +416,6 @@ function determineCollections(productInfo) {
     collections.push('Accessories');
   }
   
-  // Filter collections
   if (productInfo.displaySize) {
     collections.push(`${productInfo.displaySize} Devices`);
   }
@@ -361,10 +428,9 @@ function determineCollections(productInfo) {
     collections.push(`${productInfo.year} Models`);
   }
   
-  return [...new Set(collections)]; // Remove duplicates
+  return [...new Set(collections)];
 }
 
-// NORMALIZATION FUNCTIONS (Enhanced)
 function normalizeModel(model) {
   if (!model) return 'Unknown';
   
@@ -393,7 +459,6 @@ function normalizeProcessor(processor) {
   
   const procStr = processor.toString().toLowerCase();
   
-  // Apple Silicon chips
   if (procStr.includes('m3 pro')) return 'M3 Pro';
   if (procStr.includes('m3 max')) return 'M3 Max';
   if (procStr.includes('m3')) return 'M3';
@@ -404,19 +469,17 @@ function normalizeProcessor(processor) {
   if (procStr.includes('m1 max')) return 'M1 Max';
   if (procStr.includes('m1')) return 'M1';
   
-  // Intel processors
   if (procStr.includes('i9')) return 'Intel i9';
   if (procStr.includes('i7')) return 'Intel i7';
   if (procStr.includes('i5')) return 'Intel i5';
   if (procStr.includes('i3')) return 'Intel i3';
   if (procStr.includes('intel')) return 'Intel';
   
-  // AirPods
   if (procStr.includes('airpods') && procStr.includes('2nd')) return 'AirPods 2nd Gen';
   if (procStr.includes('airpods') && procStr.includes('3rd')) return 'AirPods 3rd Gen';
   if (procStr.includes('airpods') && procStr.includes('pro')) return 'AirPods Pro';
   
-  return processor.substring(0, 20); // Limit length
+  return processor.substring(0, 20);
 }
 
 function normalizeStorage(storage) {
@@ -488,11 +551,9 @@ function normalizeCondition(condition) {
   return condition;
 }
 
-// ENHANCED PRICE ESTIMATION
 function estimatePrice(productInfo, item) {
-  let basePrice = 300; // Starting base price
+  let basePrice = 300;
   
-  // Product type adjustments
   switch (productInfo.productType) {
     case 'MacBook Pro':
       basePrice = 1200;
@@ -537,7 +598,6 @@ function estimatePrice(productInfo, item) {
       basePrice = 200;
   }
   
-  // Processor adjustments
   if (productInfo.processor.includes('M3')) basePrice += 300;
   else if (productInfo.processor.includes('M2')) basePrice += 200;
   else if (productInfo.processor.includes('M1')) basePrice += 100;
@@ -546,26 +606,22 @@ function estimatePrice(productInfo, item) {
     basePrice += 300;
   }
   
-  // Storage adjustments
   if (productInfo.storage.includes('2TB')) basePrice += 400;
   else if (productInfo.storage.includes('1TB')) basePrice += 200;
   else if (productInfo.storage.includes('512GB')) basePrice += 100;
   
-  // Memory adjustments
   if (productInfo.memory.includes('64GB')) basePrice += 600;
   else if (productInfo.memory.includes('32GB')) basePrice += 300;
   else if (productInfo.memory.includes('16GB')) basePrice += 150;
   
-  // Year adjustments
   if (productInfo.year === '2023') basePrice += 200;
   else if (productInfo.year === '2022') basePrice += 100;
   else if (productInfo.year === '2021') basePrice += 50;
   else if (productInfo.year && parseInt(productInfo.year) < 2020) basePrice -= 100;
   
-  return Math.max(basePrice, 50); // Minimum price
+  return Math.max(basePrice, 50);
 }
 
-// GET CATEGORY STATISTICS
 function getCategoryStats(products) {
   const stats = {};
   products.forEach(item => {
